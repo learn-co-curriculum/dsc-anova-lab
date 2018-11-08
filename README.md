@@ -1,5 +1,5 @@
 
-## ANOVA - Analysis of Variance - Lab
+# ANOVA  - Lab
 
 ## Introduction
 
