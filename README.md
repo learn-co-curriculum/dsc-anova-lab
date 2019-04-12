@@ -3,7 +3,7 @@
 
 ## Introduction
 
-In this lab, you'll get some brief practice generating an ANOVA table (AOV) and interpreting its output.
+In this lab, you'll get some brief practice generating an ANOVA table (AOV) and interpreting its output. You'll then also perform some investigations to compare the method to the t-tests you previously employed to conduct hypothesis testing.
 
 ## Objectives
 
@@ -86,20 +86,6 @@ df.head()
 
 
 
-
-```python
-df.supp.value_counts()
-```
-
-
-
-
-    OJ    30
-    VC    30
-    Name: supp, dtype: int64
-
-
-
 ## Generating the ANOVA Table
 
 Now generate an ANOVA table in order to analyze the influence of the medication and dosage 
@@ -137,48 +123,110 @@ Now that you've gotten a brief chance to interact with ANOVA, its interesting to
 
 ```python
 #Your code here
-oj_lengths = 
-vc_lengths = 
+oj_lengths = df[df.supp=='OJ']['len']
+vc_lengths = df[df.supp=='VC']['len']
 ```
 
-Now compare a t-test between these two groups and print the p-value ass
+Now compare a t-test between these two groups and print the associated two-sided p-value.
+
+
+```python
+#Your code here; calculate the 2-sided p-value for a t-test comparing the two supplement groups.
+import flatiron_stats as fs
+
+fs.p_value_welch_ttest(oj_lengths, vc_lengths, two_sided=True)
+```
+
+
+
+
+    0.06063450788093405
+
+
 
 ## A 2-Category ANOVA F-Test is Equivalent to a 2-Tailed t-Test!
+
+Now, recalculate an ANOVA F-test with only the supplement variable. An ANOVA F-test between two categories is the same as performing a 2-tailed t-Test! So, the p-value in the table should be identical to your calculation above.
+
+> Note: there may be a small fractional difference (>0.001) between the two values due to a rounding error between implementations. 
 
 
 ```python
 #Your code here; conduct an ANOVA F-test of the oj and vc supplement groups.
-#Compare the p-value to that of the t-test above.
+#Compare the p-value to that of the t-test above. 
+#They should match (there may be a tiny fractional difference due to rounding errors in varying implementations)
+formula = 'len ~ C(supp)'
+lm = ols(formula, df).fit()
+table = sm.stats.anova_lm(lm, typ=2)
+print(table)
 ```
+
+                   sum_sq    df         F    PR(>F)
+    C(supp)    205.350000   1.0  3.668253  0.060393
+    Residual  3246.859333  58.0       NaN       NaN
+
 
 ## Generating Multiple T-Tests
 
-While the 
+While the 2-category ANOVA test is identical to a 2-tailed t-Test, performing multiple t-tests leads to the multiple comparisons problem. To investigate this, look at the various sample groups you could create from the 2 features: 
 
 
 ```python
-df.groupby('supp')['dose'].value_counts()
+for group in df.groupby(['supp', 'dose'])['len']:
+    group_name = group[0]
+    data = group[1]
+    print(group_name)
 ```
 
+    ('OJ', 0.5)
+    ('OJ', 1.0)
+    ('OJ', 2.0)
+    ('VC', 0.5)
+    ('VC', 1.0)
+    ('VC', 2.0)
 
 
-
-    supp  dose
-    OJ    0.5     10
-          1.0     10
-          2.0     10
-    VC    0.5     10
-          1.0     10
-          2.0     10
-    Name: dose, dtype: int64
-
-
+While bad practice, examine the effects of calculating multiple t-tests with the various combinations of these. To do this, generate all combinations of the above groups. For each pairwise combination, calculate the p-value of a 2 sided t-test. Print the group combinations and their associated p-value for the two-sided t-test.
 
 
 ```python
-#Your code here; generalize your $t$-test code to calculate the p-value for a 2-sided $t$-test
-#for all combinations of the supplement-dose groups listed above. (Each group should be compared to every other group)
+#Your code here; reuse your $t$-test code above to calculate the p-value for a 2-sided $t$-test
+#for all combinations of the supplement-dose groups listed above. 
+#(Since there isn't a control group, compare each group to every other group.)
+
+from itertools import combinations
+
+groups = [group[0] for group in df.groupby(['supp', 'dose'])['len']]
+combos = combinations(groups, 2)
+for combo in combos:
+    supp1 = combo[0][0]
+    dose1 = combo[0][1]
+    supp2 = combo[1][0]
+    dose2 = combo[1][1]
+    sample1 = df[(df.supp == supp1) & (df.dose == dose1)]
+    sample2 = df[(df.supp == supp2) & (df.dose == dose2)]
+    p = fs.p_value_welch_ttest(sample1, sample2, two_sided=True)
+    print(combo, p[0])
 ```
+
+    (('OJ', 0.5), ('OJ', 1.0)) 4.030331623994243e-12
+    (('OJ', 0.5), ('OJ', 2.0)) 0.0
+    (('OJ', 0.5), ('VC', 0.5)) 1.4726832244793542e-06
+    (('OJ', 0.5), ('VC', 1.0)) 0.00044290443031336224
+    (('OJ', 0.5), ('VC', 2.0)) 1.7763568394002505e-15
+    (('OJ', 1.0), ('OJ', 2.0)) 0.00028819151901204876
+    (('OJ', 1.0), ('VC', 0.5)) 0.0
+    (('OJ', 1.0), ('VC', 1.0)) 6.6660528208473124e-09
+    (('OJ', 1.0), ('VC', 2.0)) 0.0035592713576999557
+    (('OJ', 2.0), ('VC', 0.5)) 0.0
+    (('OJ', 2.0), ('VC', 1.0)) 0.0
+    (('OJ', 2.0), ('VC', 2.0)) 0.9366612287136709
+    (('VC', 0.5), ('VC', 1.0)) 0.0
+    (('VC', 0.5), ('VC', 2.0)) 0.0
+    (('VC', 1.0), ('VC', 2.0)) 3.5853542357244805e-12
+
+
+> Comment: Note that while ANOVA also concluded that all factors were significant, these p-values are substantially lower.
 
 ## Summary
 
