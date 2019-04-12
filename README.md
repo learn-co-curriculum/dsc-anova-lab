@@ -86,6 +86,20 @@ df.head()
 
 
 
+
+```python
+df.supp.value_counts()
+```
+
+
+
+
+    OJ    30
+    VC    30
+    Name: supp, dtype: int64
+
+
+
 ## Generating the ANOVA Table
 
 Now generate an ANOVA table in order to analyze the influence of the medication and dosage 
@@ -116,6 +130,56 @@ Make a brief comment regarding the statistics regarding the effect of supplement
 
 Both does and supplement type are impactful. At first glance, dosage seems to be the more impactful of the two.
 
+## Comparing to T-Tests
+
+Now that you've gotten a brief chance to interact with ANOVA, its interesting to compare the results to those from the t-tests you were just working with. With that, start by breaking the data into two samples: those given the OJ supplement, and those given the VC supplement. Afterwards, you'll conduct a t-test to compare the tooth length of these two different samples.
+
+
+```python
+#Your code here
+oj_lengths = 
+vc_lengths = 
+```
+
+Now compare a t-test between these two groups and print the p-value ass
+
+## A 2-Category ANOVA F-Test is Equivalent to a 2-Tailed t-Test!
+
+
+```python
+#Your code here; conduct an ANOVA F-test of the oj and vc supplement groups.
+#Compare the p-value to that of the t-test above.
+```
+
+## Generating Multiple T-Tests
+
+While the 
+
+
+```python
+df.groupby('supp')['dose'].value_counts()
+```
+
+
+
+
+    supp  dose
+    OJ    0.5     10
+          1.0     10
+          2.0     10
+    VC    0.5     10
+          1.0     10
+          2.0     10
+    Name: dose, dtype: int64
+
+
+
+
+```python
+#Your code here; generalize your $t$-test code to calculate the p-value for a 2-sided $t$-test
+#for all combinations of the supplement-dose groups listed above. (Each group should be compared to every other group)
+```
+
 ## Summary
 
-In this lesson, we examined the ANOVA technique to generalize A/B testing methods to multiple groups and factors.
+In this lesson, you examined the ANOVA technique to generalize A/B testing methods to multiple groups and factors.
