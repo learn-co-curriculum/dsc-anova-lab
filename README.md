@@ -33,7 +33,10 @@ Now generate an ANOVA table in order to analyze the influence of the medication 
 
 Make a brief comment regarding the statistics regarding the effect of supplement and dosage on tooth length.
 
-#Your comment here
+
+```python
+# Your comment here
+```
 
 ## Comparing to T-Tests
 
