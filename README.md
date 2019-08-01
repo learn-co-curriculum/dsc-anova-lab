@@ -124,7 +124,16 @@ print(table)
 
 Make a brief comment regarding the statistics regarding the effect of supplement and dosage on tooth length.
 
-#Your comment here
+
+```python
+# Your comment here
+```
+
+
+```python
+# __SOLUTION__
+# Both dose and supplement type are impactful. At first glance, dosage seems to be the more impactful of the two.
+```
 
 ## Comparing to T-Tests
 
@@ -262,6 +271,9 @@ for combo in combos:
     sample2 = df[(df.supp == supp2) & (df.dose == dose2)]
     p = fs.p_value_welch_ttest(sample1, sample2, two_sided=True)
     print(combo, p[0])
+
+    # Note that while ANOVA also concluded that all factors were significant, 
+    # these p-values are substantially lower.
 ```
 
     (('OJ', 0.5), ('OJ', 1.0)) 4.030331623994243e-12
