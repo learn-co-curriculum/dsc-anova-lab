@@ -91,7 +91,7 @@ While bad practice, examine the effects of calculating multiple t-tests with the
 
 
 ```python
-#Your code here; reuse your $t$-test code above to calculate the p-value for a 2-sided $t$-test
+#Your code here; reuse your t-test code above to calculate the p-value for a 2-sided t-test
 #for all combinations of the supplement-dose groups listed above. 
 #(Since there isn't a control group, compare each group to every other group.)
 ```
