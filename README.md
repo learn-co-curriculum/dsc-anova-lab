@@ -108,16 +108,16 @@ Now generate an ANOVA table in order to analyze the influence of the medication 
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 
-formula = 'len ~ C(supp) + dose'
+formula = 'len ~ C(supp) + C(dose)'
 lm = ols(formula, df).fit()
 table = sm.stats.anova_lm(lm, typ=2)
 print(table)
 ```
 
-                   sum_sq    df           F        PR(>F)
-    C(supp)    205.350000   1.0   11.446768  1.300662e-03
-    dose      2224.304298   1.0  123.988774  6.313519e-16
-    Residual  1022.555036  57.0         NaN           NaN
+                   sum_sq    df          F        PR(>F)
+    C(supp)    205.350000   1.0  14.016638  4.292793e-04
+    C(dose)   2426.434333   2.0  82.810935  1.871163e-17
+    Residual   820.425000  56.0        NaN           NaN
 
 
 ## Reading the Table
@@ -163,15 +163,15 @@ Now compare a t-test between these two groups and print the associated two-sided
 ```python
 # __SOLUTION__ 
 #Your code here; calculate the 2-sided p-value for a t-test comparing the two supplement groups.
-import flatiron_stats as fs
+from scipy import stats
 
-fs.p_value_welch_ttest(oj_lengths, vc_lengths, two_sided=True)
+stats.ttest_ind(oj_lengths, vc_lengths, equal_var=False)[1]
 ```
 
 
 
 
-    0.06063450788093405
+    0.06063450788093387
 
 
 
@@ -246,7 +246,7 @@ While bad practice, examine the effects of calculating multiple t-tests with the
 
 
 ```python
-#Your code here; reuse your $t$-test code above to calculate the p-value for a 2-sided $t$-test
+#Your code here; reuse your t-test code above to calculate the p-value for a 2-sided t-test
 #for all combinations of the supplement-dose groups listed above. 
 #(Since there isn't a control group, compare each group to every other group.)
 ```
@@ -254,7 +254,7 @@ While bad practice, examine the effects of calculating multiple t-tests with the
 
 ```python
 # __SOLUTION__ 
-#Your code here; reuse your $t$-test code above to calculate the p-value for a 2-sided $t$-test
+#Your code here; reuse your t-test code above to calculate the p-value for a 2-sided t-test
 #for all combinations of the supplement-dose groups listed above. 
 #(Since there isn't a control group, compare each group to every other group.)
 
@@ -267,30 +267,30 @@ for combo in combos:
     dose1 = combo[0][1]
     supp2 = combo[1][0]
     dose2 = combo[1][1]
-    sample1 = df[(df.supp == supp1) & (df.dose == dose1)]
-    sample2 = df[(df.supp == supp2) & (df.dose == dose2)]
-    p = fs.p_value_welch_ttest(sample1, sample2, two_sided=True)
-    print(combo, p[0])
+    sample1 = df[(df.supp == supp1) & (df.dose == dose1)]['len']
+    sample2 = df[(df.supp == supp2) & (df.dose == dose2)]['len']
+    p = stats.ttest_ind(sample1, sample2, equal_var=False)[1]
+    print(combo, p)
 
     # Note that while ANOVA also concluded that all factors were significant, 
     # these p-values are substantially lower.
 ```
 
-    (('OJ', 0.5), ('OJ', 1.0)) 4.030331623994243e-12
-    (('OJ', 0.5), ('OJ', 2.0)) 0.0
-    (('OJ', 0.5), ('VC', 0.5)) 1.4726832244793542e-06
-    (('OJ', 0.5), ('VC', 1.0)) 0.00044290443031336224
-    (('OJ', 0.5), ('VC', 2.0)) 1.7763568394002505e-15
-    (('OJ', 1.0), ('OJ', 2.0)) 0.00028819151901204876
-    (('OJ', 1.0), ('VC', 0.5)) 0.0
-    (('OJ', 1.0), ('VC', 1.0)) 6.6660528208473124e-09
-    (('OJ', 1.0), ('VC', 2.0)) 0.0035592713576999557
-    (('OJ', 2.0), ('VC', 0.5)) 0.0
-    (('OJ', 2.0), ('VC', 1.0)) 0.0
-    (('OJ', 2.0), ('VC', 2.0)) 0.9366612287136709
-    (('VC', 0.5), ('VC', 1.0)) 0.0
-    (('VC', 0.5), ('VC', 2.0)) 0.0
-    (('VC', 1.0), ('VC', 2.0)) 3.5853542357244805e-12
+    (('OJ', 0.5), ('OJ', 1.0)) 8.784919055161479e-05
+    (('OJ', 0.5), ('OJ', 2.0)) 1.3237838776972294e-06
+    (('OJ', 0.5), ('VC', 0.5)) 0.006358606764096813
+    (('OJ', 0.5), ('VC', 1.0)) 0.04601033257637553
+    (('OJ', 0.5), ('VC', 2.0)) 7.196253524006043e-06
+    (('OJ', 1.0), ('OJ', 2.0)) 0.039195142046244004
+    (('OJ', 1.0), ('VC', 0.5)) 3.6552067303259103e-08
+    (('OJ', 1.0), ('VC', 1.0)) 0.001038375872299884
+    (('OJ', 1.0), ('VC', 2.0)) 0.09652612338267014
+    (('OJ', 2.0), ('VC', 0.5)) 1.3621396478988818e-11
+    (('OJ', 2.0), ('VC', 1.0)) 2.3610742020468435e-07
+    (('OJ', 2.0), ('VC', 2.0)) 0.9638515887233756
+    (('VC', 0.5), ('VC', 1.0)) 6.811017702865016e-07
+    (('VC', 0.5), ('VC', 2.0)) 4.6815774144921145e-08
+    (('VC', 1.0), ('VC', 2.0)) 9.155603056638692e-05
 
 
 ## Summary
